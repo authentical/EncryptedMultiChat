@@ -1,8 +1,9 @@
 /* Adapted from code by Siva Naganjaneyulu Polam */
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 /* TODO
@@ -20,8 +21,8 @@ public class ClientThread extends Thread{
     private int maxClientsCount;
 
     private String clientName = null;
-    private DataInputStream inputStream = null;
-    private PrintStream outputStream = null;
+    private BufferedReader inputStream = null; // REPLACED deprecated DataInputStream with BufferedReader+InputStreamReader
+    private PrintWriter outputStream = null;       // REPLACED PrintStream with PrintWriter
 
 
     // CONSTRUCTOR ///////////////////////////////////////////////////////////
@@ -38,8 +39,8 @@ public class ClientThread extends Thread{
 
         // Setup streams, Get username from user, tell other's about new user
         try {
-            inputStream = new DataInputStream(clientSocket.getInputStream());
-            outputStream = new PrintStream(clientSocket.getOutputStream());
+            inputStream = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            outputStream = new PrintWriter(clientSocket.getOutputStream());
 
 
             // Get username and echo
@@ -147,6 +148,7 @@ public class ClientThread extends Thread{
             outputStream.close();
             clientSocket.close();
         } catch (IOException e) {
+            System.out.println("Line 40");
         }
     }
 }

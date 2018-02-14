@@ -141,8 +141,8 @@ public class ChatClient {
             box.add(sendButton);
 
 
-            // Action for the inputTextField and the goButton
-            ActionListener sendListener = new ActionListener() {
+            // Action for the inputTextField and the Send button
+            ActionListener sendListener = new ActionListener() {   /// Lambda
                 public void actionPerformed(ActionEvent e) {
                     String str = inputTextField.getText();
                     if (str != null && str.trim().length() > 0)
@@ -152,8 +152,8 @@ public class ChatClient {
                     inputTextField.setText("");
                 }
             };
-            inputTextField.addActionListener(sendListener);
-            sendButton.addActionListener(sendListener);
+            inputTextField.addActionListener(sendListener); // ENTER action
+            sendButton.addActionListener(sendListener);     // CLICK action
 
             this.addWindowListener(new WindowAdapter() {
                 @Override
@@ -164,7 +164,10 @@ public class ChatClient {
         }
 
 
-        /** Updates the UI depending on the Object argument */
+        // JAVA DOCS: This method is called whenever the observed object is changed.
+        //
+        // Observable o = SendAndReceive object,
+        // Object arg = messages coming in from socket.getInputStream()
         public void update(Observable o, Object arg) {
             final Object finalArg = arg;
             SwingUtilities.invokeLater(new Runnable() {
