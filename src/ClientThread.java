@@ -1,9 +1,6 @@
 /* Adapted from code by Siva Naganjaneyulu Polam */
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 /* TODO
@@ -21,7 +18,7 @@ public class ClientThread extends Thread{
     private int maxClientsCount;
 
     private String clientName = null;
-    private BufferedReader inputStream = null; // REPLACED deprecated DataInputStream with BufferedReader+InputStreamReader
+    private BufferedReader input = null; // REPLACED deprecated DataInputStream with BufferedReader+InputStreamReader
     private PrintWriter outputStream = null;       // REPLACED PrintStream with PrintWriter
 
 
@@ -39,15 +36,15 @@ public class ClientThread extends Thread{
 
         // Setup streams, Get username from user, tell other's about new user
         try {
-            inputStream = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            outputStream = new PrintWriter(clientSocket.getOutputStream());
+            input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            outputStream = new PrintWriter(clientSocket.getOutputStream(), true);
 
 
             // Get username and echo
             String name;
             while (true) {
                 outputStream.println("Enter your name.");
-                name = inputStream.readLine().trim();
+                name = input.readLine().trim();
                 if (name.indexOf('@') == -1) {
                     break;
                 } else {
@@ -80,7 +77,7 @@ public class ClientThread extends Thread{
             // Read the network in from the client's socket
             // and send it to everyone else
             while (true) {
-                String line = inputStream.readLine();
+                String line = input.readLine();
                 if (line.startsWith("/quit")) {
                     break;
                 }
@@ -144,7 +141,7 @@ public class ClientThread extends Thread{
             }
 
             // Close client's streams and socket
-            inputStream.close();
+            input.close();
             outputStream.close();
             clientSocket.close();
         } catch (IOException e) {
