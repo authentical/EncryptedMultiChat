@@ -1,5 +1,5 @@
 /* Adapted from code by Siva Naganjaneyulu Polam */
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.ServerSocket;
@@ -53,7 +53,7 @@ public class ChatServer {
 
                 // If max clients has been reached, tell the client and drop them
                 if (i == maxClientsCount) {
-                    PrintStream output = new PrintStream(clientSocket.getOutputStream());
+                    PrintWriter output = new PrintWriter(clientSocket.getOutputStream());
                     output.println("Server full.");
                     output.close();
                     clientSocket.close();

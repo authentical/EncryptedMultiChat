@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 
-
+/* TODO
+Add System.exit after /quit
+Enforce unique username
+Reply when no @recipient exists
+ */
 
 // A class that defines streams, message routing and
 // housekeeping for each connected client
@@ -114,7 +118,7 @@ public class ClientThread extends Thread{
                         }
                     }
                 }
-            }Test
+            }
 
             // After the user says "/quit"
             // Tell everyone and say goodbye to the user

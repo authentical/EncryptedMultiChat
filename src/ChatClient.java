@@ -17,19 +17,53 @@ import java.util.Observer;
 // Class to manage Client chat Box.
 public class ChatClient {
 
-    /** Chat client access */
-    static class ChatAccess extends Observable {
+
+    // MAIN //////////////////////////////////////////////////////////////////
+    //
+    public static void main(String[] args) {
+        String server = args[0];
+        int port =2222;
+        SendAndReceive sendAndReceive = new SendAndReceive();
+
+        JFrame frame = new ChatFrame(sendAndReceive);
+        frame.setTitle("MultiChat - connected to " + server + ":" + port);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
+        frame.setVisible(true);
+
+        try {
+            sendAndReceive.initSocket(server,port);
+        } catch (IOException ex) {
+            System.out.println("Cannot connect to " + server + ":" + port);
+            ex.printStackTrace();
+            System.exit(0);
+        }
+    }
+
+
+    // SendAndReceive //////////////////////////////////////////////////////////////////
+    // Set up socket, streams, create thread to Receive messages and method to Send messages
+    //
+    static class SendAndReceive extends Observable {
         private Socket socket;
         private OutputStream outputStream;
 
+
+        /* JAVA DOCS REFERENCE
+        After an observable instance changes, an application calling the Observable's
+        notifyObservers method causes all of its observers to be notified of the change
+        by a call to their update method.
+         */
         @Override
         public void notifyObservers(Object arg) {
             super.setChanged();
             super.notifyObservers(arg);
         }
 
-        /** Create socket, and receiving thread */
-        public void InitSocket(String server, int port) throws IOException {
+        // Create socket, output stream and Thread for receiving messages
+        public void initSocket(String server, int port) throws IOException {
             socket = new Socket(server, port);
             outputStream = socket.getOutputStream();
 
@@ -37,13 +71,16 @@ public class ChatClient {
                 @Override
                 public void run() {
                     try {
-                        BufferedReader textInput = new BufferedReader(
-                                new InputStreamReader(socket.getInputStream()));
-                        String line;
-                        while ((line = textInput.readLine()) != null)
-                            notifyObservers(line);
-                    } catch (IOException ex) {
-                        notifyObservers(ex);
+                        BufferedReader textInput = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                        String message;
+
+                        // Continually take text off of the input stream and notifyObservers of the text
+                        while ((message = textInput.readLine()) != null)
+                            notifyObservers(message);
+
+                    } catch (IOException e) {
+                        notifyObservers(e);
                     }
                 }
             };
@@ -52,17 +89,19 @@ public class ChatClient {
 
         private static final String CRLF = "\r\n"; // newline
 
-        /** Send a line of text */
-        public void send(String text) {
+
+        // Send message
+        public void sendMessage(String text) {
             try {
                 outputStream.write((text + CRLF).getBytes());
                 outputStream.flush();
+
             } catch (IOException ex) {
                 notifyObservers(ex);
             }
         }
 
-        /** Close the socket */
+        // Close socket
         public void close() {
             try {
                 socket.close();
@@ -72,21 +111,22 @@ public class ChatClient {
         }
     }
 
-    /** Chat client UI */
+    // Chat client UI
     static class ChatFrame extends JFrame implements Observer {
 
         private JTextArea textArea;
         private JTextField inputTextField;
         private JButton sendButton;
-        private ChatAccess chatAccess;
+        private SendAndReceive sendAndReceive;  // Has notifyObservers
 
-        public ChatFrame(ChatAccess chatAccess) {
-            this.chatAccess = chatAccess;
-            chatAccess.addObserver(this);
+        public ChatFrame(SendAndReceive sendAndReceive) {
+            this.sendAndReceive = sendAndReceive;
+            sendAndReceive.addObserver(this);
             buildGUI();
         }
 
-        /** Builds the user interface */
+
+        // UI Definition
         private void buildGUI() {
             textArea = new JTextArea(20, 50);
             textArea.setEditable(false);
@@ -100,12 +140,13 @@ public class ChatClient {
             box.add(inputTextField);
             box.add(sendButton);
 
+
             // Action for the inputTextField and the goButton
             ActionListener sendListener = new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     String str = inputTextField.getText();
                     if (str != null && str.trim().length() > 0)
-                        chatAccess.send(str);
+                        sendAndReceive.sendMessage(str);
                     inputTextField.selectAll();
                     inputTextField.requestFocus();
                     inputTextField.setText("");
@@ -117,10 +158,11 @@ public class ChatClient {
             this.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
-                    chatAccess.close();
+                    sendAndReceive.close();
                 }
             });
         }
+
 
         /** Updates the UI depending on the Object argument */
         public void update(Observable o, Object arg) {
@@ -131,28 +173,6 @@ public class ChatClient {
                     textArea.append("\n");
                 }
             });
-        }
-    }
-
-    public static void main(String[] args) {
-        String server = args[0];
-        int port =2222;
-        ChatAccess access = new ChatAccess();
-
-        JFrame frame = new ChatFrame(access);
-        frame.setTitle("MyChatApp - connected to " + server + ":" + port);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setResizable(false);
-        frame.setVisible(true);
-
-        try {
-            access.InitSocket(server,port);
-        } catch (IOException ex) {
-            System.out.println("Cannot connect to " + server + ":" + port);
-            ex.printStackTrace();
-            System.exit(0);
         }
     }
 }
