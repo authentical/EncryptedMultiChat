@@ -114,7 +114,7 @@ public class ClientThread extends Thread{
                         }
                     }
                 }
-            }
+            }Test
 
             // After the user says "/quit"
             // Tell everyone and say goodbye to the user
