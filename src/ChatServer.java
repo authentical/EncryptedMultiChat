@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 
 
 public class ChatServer {
+    // Server and Client socket
     private static ServerSocket serverSocket = null;
     private static Socket clientSocket = null;
 

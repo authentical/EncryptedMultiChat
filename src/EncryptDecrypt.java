@@ -3,40 +3,55 @@
 // my first go.
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
 
 public class EncryptDecrypt {
-    public static String encrypt(String strClearText,String strKey) throws Exception{
-        String strData="";
+
+
+    // ENCRYPT
+    public static byte[] encrypt(String strClearText, String encryptionKey) {
+
+        byte[] encryptedText={};
 
         try {
-            SecretKeySpec skeyspec=new SecretKeySpec(strKey.getBytes(),"Blowfish");
-            Cipher cipher=Cipher.getInstance("Blowfish");
-            cipher.init(Cipher.ENCRYPT_MODE, skeyspec);
-            byte[] encrypted=cipher.doFinal(strClearText.getBytes());
-            strData=new String(encrypted);
+            Key key = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+            byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            IvParameterSpec ivspec = new IvParameterSpec(iv);
+
+            cipher.init(Cipher.ENCRYPT_MODE, key, ivspec);
+            encryptedText = cipher.doFinal(strClearText.getBytes());
+
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception(e);
         }
-        return strData;
+
+        return encryptedText;
     }
 
-    public static String decrypt(String strEncrypted,String strKey) throws Exception{
-        String strData="";
+
+    // DECRYPT
+    public static String decrypt(byte[] strEncrypted, String encryptionKey) {
+        String decryptedText = "";
 
         try {
-            SecretKeySpec skeyspec=new SecretKeySpec(strKey.getBytes(),"Blowfish");
-            Cipher cipher= Cipher.getInstance("Blowfish");
-            cipher.init(Cipher.DECRYPT_MODE, skeyspec);
-            byte[] decrypted=cipher.doFinal(strEncrypted.getBytes());
-            strData=new String(decrypted);
+            Key key = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+            byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            IvParameterSpec ivspec = new IvParameterSpec(iv);
+
+            cipher.init(Cipher.DECRYPT_MODE, key, ivspec);
+            decryptedText = new String(cipher.doFinal(strEncrypted));
+
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception(e);
         }
-        return strData;
+        return decryptedText;
     }
 }
